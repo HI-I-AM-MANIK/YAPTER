@@ -11,8 +11,7 @@
 // PRISMA CLIENT GENERATOR CONFIGURATION
 // ============================================
 generator client {
-  provider = "prisma-client"
-  output   = "../lib/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 // ============================================
@@ -21,6 +20,7 @@ generator client {
 // Using MySQL as the database provider
 datasource db {
   provider = "mysql"
+  relationMode = "prisma"
 }
 
 // ============================================
