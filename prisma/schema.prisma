@@ -1,0 +1,134 @@
+// ============================================
+// PRISMA SCHEMA - YAPTER APPLICATION
+// ============================================
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+// ============================================
+// PRISMA CLIENT GENERATOR CONFIGURATION
+// ============================================
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+// ============================================
+// DATABASE CONNECTION CONFIGURATION
+// ============================================
+// Using MySQL as the database provider
+datasource db {
+  provider = "mysql"
+}
+
+// ============================================
+// PROFILE MODEL
+// ============================================
+// Represents a user profile in the application
+// Stores user information and relationships to servers
+model Profile{
+  // Unique identifier - automatically generated using CUID
+  id String @id @default(cuid()) 
+  
+  // User ID from Clerk authentication - must be unique
+  userId String @unique
+  
+  // Username for display and identification
+  username String
+  
+  // Full name of the user
+  name String 
+  
+  // URL to the user's profile image
+  imageUrl String @db.Text
+  
+  // User's email address
+  email String @db.Text
+
+  // Relationship: One profile can own multiple servers
+  servers Server[]
+  members Member[]
+  channels Channel[]
+
+  // Timestamp when the profile was created
+  createdAt DateTime @default(now())
+  
+  // Timestamp when the profile was last updated
+  updatedAt DateTime @updatedAt
+}
+
+// ============================================
+// SERVER MODEL
+// ============================================
+// Represents a Discord-like server/community
+// Each server belongs to a profile (owner)
+model Server{
+  // Unique identifier - automatically generated using CUID
+  id String @id @default(cuid())
+  
+  // Name of the server
+  name String
+  
+  // URL to the server's icon/image
+  imageUrl String @db.Text
+  
+  // Invite code for joining the server
+  inviteCode String @db.Text 
+
+  // Foreign key: Reference to the profile that owns this server
+  profileId String
+  
+  // Relationship: Every server belongs to exactly one profile
+  // Cascade delete: Deleting a profile will delete all its servers
+  profile Profile @relation(fields: [profileId], references: [id],onDelete: Cascade)
+  members Member[]
+  channels Channel[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([profileId])
+}
+
+enum MemberRole{
+  ADMIN
+  MODERATOR
+  GUEST
+}
+
+model Member{
+  id String @id @default(cuid())
+  role MemberRole @default(GUEST)
+
+  profileId String
+  profile Profile @relation(fields: [profileId], references: [id],onDelete: Cascade)
+  serverId String
+  server Server @relation(fields: [serverId], references: [id],onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([profileId])
+  @@index([serverId])
+}
+
+enum ChannelType{
+  TEXT
+  AUDIO
+  VIDEO
+}
+
+model Channel{
+  id String @id @default(cuid())
+  name String
+  type ChannelType @default(TEXT)
+
+  profileId String
+  profile Profile @relation(fields: [profileId], references: [id],onDelete:Cascade)
+  serverId String
+  server Server @relation(fields: [serverId], references: [id],onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([profileId])
+  @@index([serverId])
+}
