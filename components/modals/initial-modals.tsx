@@ -1,4 +1,8 @@
 "use client"
+import * as z from "zod"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+
 import{
     Dialog,
     DialogContent,
@@ -8,12 +12,6 @@ import{
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog" 
-import * as z from "zod"
-import { zodResolver } from "@hookform/resolvers/zod"
-
-import { use } from "react"
-import { useForm } from "react-hook-form"
-
 import {
     Form,
     FormControl,
@@ -25,6 +23,7 @@ import {
 
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import FileUpload from "@/components/file-upload"
 
 
 const formSchema = z.object({
@@ -62,7 +61,22 @@ export const InitialModals = () => {
                 <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4 py-4">
                     <div className="space-y-8 px-6">
                         <div className="flex items-center justify-center text-center">
-                            TODO : IMAGE UPLOAD
+                            <FormField
+                                control={form.control}
+                                name="imageUrl"
+                                render={({field}) => (
+                                    <FormItem>
+                                        <FormControl>
+                                           <FileUpload
+                                                endpoint="serverImage"
+                                                value={field.value}
+                                                onChange={field.onChange}
+                                           />
+                                        </FormControl>
+                                    </FormItem>
+                                )}
+                            >
+                            </FormField>
                         </div>
 
                         <FormField
