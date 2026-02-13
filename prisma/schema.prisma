@@ -20,8 +20,12 @@ generator client {
 // Using MySQL as the database provider
 datasource db {
   provider = "mysql"
+  url      = env("DATABASE_URL")
   relationMode = "prisma"
 }
+
+
+
 
 // ============================================
 // PROFILE MODEL
