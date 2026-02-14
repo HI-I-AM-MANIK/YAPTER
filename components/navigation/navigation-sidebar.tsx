@@ -26,20 +26,22 @@ const NavigationSidebar = async () => {
   });
 
   return (
-    <div className="bg-black h-full flex flex-col items-center text-primary w-full py-3 space-y-4">
+    <div className="bg-white dark:bg-[#0f172a] h-full flex flex-col items-center text-black dark:text-white py-3 space-y-4 transition-colors duration-300 shadow-sm">
       
       {/* Create Server Button */}
       <NavigationAction />
 
-      <Separator className="h-[2px] bg-zinc-300 dark:bg-zinc-700 rounded-md w-10 mx-auto" />
+      <Separator className="h-[2px] bg-zinc-200 dark:bg-zinc-700 rounded-md w-10 mx-auto" />
 
       {/* Servers List */}
       <ScrollArea className="w-full flex-1">
         <div className="flex flex-col items-center space-y-4">
           {servers.map((server) => (
-            <div key={server.id} className="flex items-center justify-center w-full">
+            <div
+              key={server.id}
+              className="flex items-center justify-center w-full"
+            >
               <NavigationItem
-
                 id={server.id}
                 imageUrl={server.imageUrl}
                 name={server.name}
@@ -48,17 +50,18 @@ const NavigationSidebar = async () => {
           ))}
         </div>
       </ScrollArea>
-      <div className="pb-3 mt-auto  flex items-center flex-col gap-y-4">
-          <ModeToggle />
-          <UserButton
-            afterSignOutUrl="/" 
-            appearance={{
 
-              elements:{
-                avatarBox:"h-[48px] w-[48px]"
-              }
-            }}
-          />
+      {/* Bottom Controls */}
+      <div className="pb-3 mt-auto flex items-center flex-col gap-y-4">
+        <ModeToggle />
+        <UserButton
+          afterSignOutUrl="/"
+          appearance={{
+            elements: {
+              avatarBox: "h-[48px] w-[48px]",
+            },
+          }}
+        />
       </div>
     </div>
   );

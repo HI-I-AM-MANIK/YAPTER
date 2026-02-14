@@ -27,8 +27,9 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en" suppressHydrationWarning className="h-full">
         <body
-          className={`${openSans.variable} font-sans antialiased bg-white dark:bg-[#313338] h-full`}
-        >
+           className={`${openSans.variable} font-sans antialiased h-full`}
+      >
+
           <NextSSRPlugin
             routerConfig={extractRouterConfig(ourFileRouter)}
           />
@@ -36,7 +37,7 @@ export default function RootLayout({
           <ThemeProvider
             attribute="class"
             defaultTheme="dark"
-            enableSystem={false}
+            enableSystem
             storageKey="discord-theme"
           >
             {children}
