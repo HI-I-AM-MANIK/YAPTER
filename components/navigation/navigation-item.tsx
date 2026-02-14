@@ -19,8 +19,6 @@ export const NavigationItem = ({
   const params = useParams();
   const router = useRouter();
 
-  const isActive = params?.serverId === id;
-
   const onClick = () => {
     router.push(`/servers/${id}`);
   };
@@ -31,21 +29,21 @@ export const NavigationItem = ({
         onClick={onClick}
         className="group relative flex items-center"
       >
-        {/* Active Indicator */}
+        {/* Left Active Indicator */}
         <div
           className={cn(
-            "absolute left-0 bg-primary rounded-r-full transition-all",
-            isActive ? "h-10 w-[4px]" : "h-2 w-[4px] group-hover:h-6"
+            "absolute left-0 bg-primary rounded-r-full transition-all w-[4px]",
+            params?.serverId !== id && "group-hover:h-[20px]",
+            params?.serverId === id ? "h-[36px]" : "h-[8px]"
           )}
         />
 
         {/* Server Icon */}
         <div
           className={cn(
-            "relative flex mx-3 h-12 w-12 rounded-full overflow-hidden transition-all",
-            isActive
-              ? "rounded-2xl"
-              : "group-hover:rounded-2xl"
+            "relative group flex mx-3 h-[48px] w-[48px] rounded-[24px] group-hover:rounded-[16px] transition-all overflow-hidden",
+            params?.serverId === id &&
+              "bg-primary/10 text-primary rounded-[16px]"
           )}
         >
           <Image
