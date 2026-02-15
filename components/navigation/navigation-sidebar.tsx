@@ -1,12 +1,12 @@
 import { redirect } from "next/navigation";
 import { currentProfile } from "@/lib/current-profile";
 import { db } from "@/lib/db";
+
 import NavigationAction from "./natvigation-action";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { NavigationItem } from "./navigation-item";
-import { ModeToggle } from "@/components/mode-toggle";
-import { UserButton } from "@clerk/nextjs";
+import NavigationBottom from "./navigation-bottom";
 
 const NavigationSidebar = async () => {
   const profile = await currentProfile();
@@ -23,11 +23,18 @@ const NavigationSidebar = async () => {
         },
       },
     },
+    orderBy: {
+      createdAt: "asc",
+    },
   });
 
   return (
-    <div className="bg-white dark:bg-[#0f172a] h-full flex flex-col items-center text-black dark:text-white py-3 space-y-4 transition-colors duration-300 shadow-sm">
-      
+    <div className="h-full w-full flex flex-col items-center py-3 space-y-4
+                    bg-white dark:bg-[#0f172a]
+                    text-black dark:text-white
+                    border-r border-zinc-200 dark:border-zinc-800
+                    transition-colors duration-300">
+
       {/* Create Server Button */}
       <NavigationAction />
 
@@ -51,18 +58,8 @@ const NavigationSidebar = async () => {
         </div>
       </ScrollArea>
 
-      {/* Bottom Controls */}
-      <div className="pb-3 mt-auto flex items-center flex-col gap-y-4">
-        <ModeToggle />
-        <UserButton
-          afterSignOutUrl="/"
-          appearance={{
-            elements: {
-              avatarBox: "h-[48px] w-[48px]",
-            },
-          }}
-        />
-      </div>
+      {/* Bottom Section (Client Component) */}
+      <NavigationBottom />
     </div>
   );
 };

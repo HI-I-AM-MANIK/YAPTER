@@ -14,31 +14,33 @@ interface FileUploadProps {
 const FileUpload = ({ onChange, value, endpoint }: FileUploadProps) => {
   const filetype = value?.split(".").pop();
 
-  if(value && filetype !== "pdf"){
+  if (value && filetype !== "pdf") {
     return (
       <div className="relative w-20 h-20">
-        <Image 
+        <Image
           fill
           src={value}
           alt="upload"
           className="rounded-full"
         />
         <button
+          type="button"
           onClick={() => onChange("")}
           className="absolute top-0 right-0 bg-rose-500 text-white rounded-full p-1 hover:bg-rose-600 transition"
         >
           <X className="h-4 w-4" />
         </button>
       </div>
-    )
+    );
   }
+
   return (
     <UploadDropzone
       endpoint={endpoint}
       onClientUploadComplete={(res) => {
-        onChange(res?.[0].ufsUrl);
+        onChange(res?.[0]?.url);
       }}
-      onUploadError={(err: Error) => {
+      onUploadError={(err) => {
         console.error("Upload error:", err);
       }}
     />
@@ -46,4 +48,3 @@ const FileUpload = ({ onChange, value, endpoint }: FileUploadProps) => {
 };
 
 export default FileUpload;
-

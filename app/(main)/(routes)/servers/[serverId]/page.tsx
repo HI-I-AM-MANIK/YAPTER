@@ -1,7 +1,5 @@
-const ServerIdPage = () => {
-    return (  
-        <div>Hello this is a server</div>
-    );
-}
- 
-export default ServerIdPage;
+const ServerPage = () => {
+  return <div>SERVER PAGE WORKING</div>;
+};
+
+export default ServerPage;
