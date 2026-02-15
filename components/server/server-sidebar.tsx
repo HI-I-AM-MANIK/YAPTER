@@ -1,6 +1,7 @@
 import { currentProfile } from "@/lib/current-profile";
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
+import { ServerHeader } from "@/components/server/server-header";
 import { ChannelType } from "@prisma/client";
 
 interface ServerSidebarProps {
@@ -60,8 +61,8 @@ const server = await db.server.findUnique({
 
     const role = server.members.find((member) => member.profileId === profile.id)?.role;
     return (
-        <div className="h-full w-full bg-gray-800 ">
-            Server sidebar Component
+        <div className="flex flex-col h-full text-primary w-full dark:bg-[#2B2D31] bg-[#F2F3F5]">
+            <ServerHeader server={server} role={role} />
         </div>
     );
 }
