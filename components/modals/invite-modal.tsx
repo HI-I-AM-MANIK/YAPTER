@@ -21,7 +21,10 @@ import {
 
 
 import { useModal } from "@/hooks/use-modal-store";
-
+import { Label } from "../ui/label";
+import { Input } from "../ui/input";
+import { Button } from "../ui/button";
+import { Copy, Icon, RefreshCw } from "lucide-react";
 
 
 export const InviteModal = () => {
@@ -44,13 +47,30 @@ export const InviteModal = () => {
       <DialogContent className="bg-white dark:bg-[#1e1f22] text-black dark:text-white p-0 overflow-hidden">
         <DialogHeader className="pt-8 px-6">
           <DialogTitle className="text-2xl text-center font-bold">
-            Customize your Server
+            Invite Friends 
           </DialogTitle>
-          <DialogDescription className="text-center text-zinc-500 dark:text-zinc-400">
-            Give your server a personality with a name and an image.
-          </DialogDescription>
+          
         </DialogHeader>
-
+        <div className="p-6">
+          <Label className="uppercase teex-xs font-bold text-zincc-500 dark:text-secondary/70">
+              Server Invite Link 
+          </Label>
+          <div className="flex ityems-ceenter mt-2 gap-x-2">
+              <Input 
+                className="bg-zinc-300/50 border-0 focus-visible:ring-0 text-black focus-visible:ring-offset-0" value="invite-link"
+              />
+              <Button size="icon">
+                <Copy className="w-4 h-4" />
+              </Button>
+          </div>
+          <Button 
+          variant="link"
+          size="sm"
+          className="text-xs text-zinc-500 mt-4">
+              Generate a new Link 
+              <RefreshCw className="w-4 h-4 ml-2"/>
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );
