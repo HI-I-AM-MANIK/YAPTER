@@ -79,7 +79,7 @@ model Server{
   imageUrl String @db.Text
   
   // Invite code for joining the server
-  inviteCode String @db.Text 
+  inviteCode String @unique
 
   // Foreign key: Reference to the profile that owns this server
   profileId String

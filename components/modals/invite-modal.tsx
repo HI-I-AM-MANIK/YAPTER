@@ -31,7 +31,7 @@ import { useState } from "react";
 
 export const InviteModal = () => {
 
-  const { isOpen, onClose, type ,data} = useModal();
+  const { onOpen,isOpen, onClose, type ,data} = useModal();
   const router = useRouter();
 
   const isModalOpen = isOpen && type === "invite";
@@ -52,6 +52,23 @@ export const InviteModal = () => {
     setTimeout(()=>{
       setCopied(false);
     },1000);
+  }
+
+  const onNew=async()=>{
+    try{
+      setIsLoading(true);
+      console.log("Current Server ID:", server?.id); // CHECK THIS LOG
+      if (!server?.id) {
+       console.error("No Server ID found in modal data");
+       return;
+    }
+      const response= await axios.patch(`/api/servers/${server?.id}/invite-code`)
+      onOpen("invite",{server:response.data})
+    }catch(error){
+      console.log(error)
+    } finally{
+      setIsLoading(false)
+    }
   }
 
 
@@ -76,14 +93,16 @@ export const InviteModal = () => {
               Server Invite Link 
           </Label>
           <div className="flex ityems-ceenter mt-2 gap-x-2">
-              <Input readOnly
+              <Input disabled={isLoading} readOnly
                 className="bg-zinc-300/50 border-0 focus-visible:ring-0 text-black focus-visible:ring-offset-0" value={inviteUrl}
               />
-              <Button size="icon" onClick={onCopy}>
+              <Button disabled={isLoading} size="icon" onClick={onCopy}>
                 {copied? <Check className="w-4 h-4"/>:<Copy className="w-4 h-4" />}
               </Button>
           </div>
           <Button 
+          disabled={isLoading}
+          onClick={onNew}
           variant="link"
           size="sm"
           className="text-xs text-zinc-500 mt-4">
