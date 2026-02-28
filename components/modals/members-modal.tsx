@@ -1,16 +1,5 @@
 "use client";
 
-import * as z from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import axios from "axios";
-import { useRouter } from "next/navigation";
-import dynamic from "next/dynamic";
-
-const FileUpload = dynamic(() => import("@/components/file-upload"), {
-  ssr: false,
-});
-
 import {
   Dialog,
   DialogContent,
@@ -19,60 +8,86 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuPortal,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
-import { useModal } from "@/hooks/use-modal-store";
-import { Label } from "../ui/label";
-import { Input } from "../ui/input";
-import { Button } from "../ui/button";
-import { Check, Copy, Icon, RefreshCw } from "lucide-react";
-import { useOrigin } from "@/hooks/use-origin";
+import {
+  ShieldCheck,
+  ShieldAlert,
+  Shield,
+  ShieldQuestion,
+  MoreVertical,
+  Check,
+  Gavel,
+  Loader2,
+} from "lucide-react";
+
 import { useState } from "react";
+import { useModal } from "@/hooks/use-modal-store";
+import { ScrollArea } from "../ui/scroll-area";
+import { UserAvatar } from "../user-avatar";
+import { ServerWithMembersWithProfiles } from "@/types";
+import { MemberRole } from "@prisma/client";
+import { useRouter } from "next/navigation";
+import axios from "axios";
 
+const roleIconMap = {
+  GUEST: <Shield className="h-4 w-4 ml-2 text-zinc-500" />,
+  MODERATOR: <ShieldCheck className="h-4 w-4 ml-2 text-indigo-500" />,
+  ADMIN: <ShieldAlert className="h-4 w-4 ml-2 text-rose-500" />,
+};
 
 export const MembersModal = () => {
-
-  const { onOpen,isOpen, onClose, type ,data} = useModal();
-  const router = useRouter();
+  const { isOpen, onClose, onOpen, type, data } = useModal();
+  const [loadingId, setLoadingId] = useState("");
 
   const isModalOpen = isOpen && type === "members";
+  const { server } = data as { server: ServerWithMembersWithProfiles };
 
-  const origin= useOrigin();
+  const router = useRouter();
 
-  const {server} = data;
-  const inviteUrl= `${origin}/invite/${server?.inviteCode}`
+  const onKick = async (memberId: string) => {
+    try {
+      setLoadingId(memberId);
 
-  const [copied,setCopied] = useState(false);
+      const url = `/api/members/${memberId}?serverId=${server?.id}`;
 
-  const [isLoading,setIsLoading] = useState(false);
+      const response = await axios.delete(url);
 
-  const onCopy=()=>{
-    navigator.clipboard.writeText(inviteUrl);
-    setCopied(true);
-    
-    setTimeout(()=>{
-      setCopied(false);
-    },1000);
-  }
-
-  const onNew=async()=>{
-    try{
-      setIsLoading(true);
-      console.log("Current Server ID:", server?.id); // CHECK THIS LOG
-      if (!server?.id) {
-       console.error("No Server ID found in modal data");
-       return;
+      router.refresh();
+      onOpen("members", { server: response.data });
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoadingId("");
     }
-      const response= await axios.patch(`/api/servers/${server?.id}/invite-code`)
-      onOpen("invite",{server:response.data})
-    }catch(error){
-      console.log(error)
-    } finally{
-      setIsLoading(false)
+  };
+
+  const onRoleChange = async (memberId: string, role: MemberRole) => {
+    try {
+      setLoadingId(memberId);
+
+      const url = `/api/members/${memberId}?serverId=${server?.id}`;
+
+      const response = await axios.patch(url, { role });
+
+      router.refresh();
+      onOpen("members", { server: response.data });
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoadingId("");
     }
-  }
-
-
-  
+  };
 
   return (
     <Dialog
@@ -81,38 +96,96 @@ export const MembersModal = () => {
         if (!open) onClose();
       }}
     >
-      <DialogContent className="bg-white  text-black p-0 overflow-hidden">
+      <DialogContent className="bg-white dark:bg-[#1e1f22] text-black dark:text-white p-0 overflow-hidden">
         <DialogHeader className="pt-8 px-6">
           <DialogTitle className="text-2xl text-center font-bold">
-            Invite Friends 
+            Manage Members
           </DialogTitle>
-          
+          <DialogDescription className="text-center text-zinc-500 dark:text-zinc-400">
+            {server?.members?.length} Members
+          </DialogDescription>
         </DialogHeader>
-        <div className="p-6">
-          <Label className="uppercase text-xs font-bold text-zinc-500 dark:text-secondary/70">
-              Server Invite Link 
-          </Label>
-          <div className="flex ityems-ceenter mt-2 gap-x-2">
-              <Input disabled={isLoading} readOnly
-                className="bg-zinc-300/50 border-0 focus-visible:ring-0 text-black focus-visible:ring-offset-0" value={inviteUrl}
-              />
-              <Button disabled={isLoading} size="icon" onClick={onCopy}>
-                {copied? <Check className="w-4 h-4"/>:<Copy className="w-4 h-4" />}
-              </Button>
-          </div>
-          <Button 
-          disabled={isLoading}
-          onClick={onNew}
-          variant="link"
-          size="sm"
-          className="text-xs text-zinc-500 mt-4">
-              Generate a new Link 
-              <RefreshCw className="w-4 h-4 ml-2"/>
-          </Button>
-        </div>
+
+        <ScrollArea className="mt-8 max-h-[420px] px-6">
+          {server?.members?.map((member) => (
+            <div key={member.id} className="flex items-center gap-x-3 mb-6">
+              <UserAvatar src={member.profile.imageUrl} />
+
+              <div className="flex flex-col">
+                <div className="text-sm font-semibold flex items-center">
+                  {member.profile.name}
+                  {roleIconMap[member.role]}
+                </div>
+                <p className="text-xs text-zinc-500">
+                  {member.profile.email}
+                </p>
+              </div>
+
+              {server.profileId !== member.profileId &&
+                loadingId !== member.id && (
+                  <div className="ml-auto">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger>
+                        <MoreVertical className="h-4 w-4 text-zinc-500" />
+                      </DropdownMenuTrigger>
+
+                      <DropdownMenuContent side="left">
+                        <DropdownMenuSub>
+                          <DropdownMenuSubTrigger>
+                            <ShieldQuestion className="w-4 h-4 mr-2" />
+                            Role
+                          </DropdownMenuSubTrigger>
+
+                          <DropdownMenuPortal>
+                            <DropdownMenuSubContent>
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  onRoleChange(member.id, MemberRole.GUEST)
+                                }
+                              >
+                                <Shield className="h-4 w-4 mr-2" />
+                                Guest
+                                {member.role === MemberRole.GUEST && (
+                                  <Check className="h-4 w-4 ml-auto" />
+                                )}
+                              </DropdownMenuItem>
+
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  onRoleChange(member.id, MemberRole.MODERATOR)
+                                }
+                              >
+                                <ShieldCheck className="h-4 w-4 mr-2" />
+                                Moderator
+                                {member.role === MemberRole.MODERATOR && (
+                                  <Check className="h-4 w-4 ml-auto" />
+                                )}
+                              </DropdownMenuItem>
+                            </DropdownMenuSubContent>
+                          </DropdownMenuPortal>
+                        </DropdownMenuSub>
+
+                        <DropdownMenuSeparator />
+
+                        <DropdownMenuItem
+                          onClick={() => onKick(member.id)}
+                          className="text-rose-500"
+                        >
+                          <Gavel className="h-4 w-4 mr-2" />
+                          Kick
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                )}
+
+              {loadingId === member.id && (
+                <Loader2 className="animate-spin text-zinc-500 ml-auto w-4 h-4" />
+              )}
+            </div>
+          ))}
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );
 };
-
-
