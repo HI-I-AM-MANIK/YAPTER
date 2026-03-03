@@ -10,69 +10,48 @@ import dynamic from "next/dynamic";
 const FileUpload = dynamic(() => import("@/components/file-upload"), {
   ssr: false,
 });
-
 import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-
-
 import { useModal } from "@/hooks/use-modal-store";
-import { Label } from "../ui/label";
-import { Input } from "../ui/input";
+
 import { Button } from "../ui/button";
-import { Check, Copy, Icon, RefreshCw } from "lucide-react";
 import { useOrigin } from "@/hooks/use-origin";
 import { useState } from "react";
 
 
 export const LeaveServerModal = () => {
 
-  const { onOpen,isOpen, onClose, type ,data} = useModal();
+  const {isOpen, onClose, type ,data} = useModal();
   const router = useRouter();
 
-  const isModalOpen = isOpen && type === "invite";
+  const isModalOpen = isOpen && type === "leaveServer";
 
   const origin= useOrigin();
 
   const {server} = data;
   const inviteUrl= `${origin}/invite/${server?.inviteCode}`
 
-  const [copied,setCopied] = useState(false);
-
   const [isLoading,setIsLoading] = useState(false);
 
-  const onCopy=()=>{
-    navigator.clipboard.writeText(inviteUrl);
-    setCopied(true);
-    
-    setTimeout(()=>{
-      setCopied(false);
-    },1000);
-  }
-
-  const onNew=async()=>{
+  const onClick = async() =>{
     try{
       setIsLoading(true);
-      console.log("Current Server ID:", server?.id); // CHECK THIS LOG
-      if (!server?.id) {
-       console.error("No Server ID found in modal data");
-       return;
-    }
-      const response= await axios.patch(`/api/servers/${server?.id}/invite-code`)
-      onOpen("invite",{server:response.data})
+      await axios.patch(`/api/servers/{server?.id}/leave`);
+      onClose();
+      router.refresh();
+      router.push("/")
     }catch(error){
       console.log(error)
-    } finally{
-      setIsLoading(false)
+    }finally{
+      setIsLoading(false);
     }
   }
-
-
-  
 
   return (
     <Dialog
@@ -84,32 +63,30 @@ export const LeaveServerModal = () => {
       <DialogContent className="bg-white  text-black p-0 overflow-hidden">
         <DialogHeader className="pt-8 px-6">
           <DialogTitle className="text-2xl text-center font-bold">
-            Invite Friends 
+              Leave Server 
           </DialogTitle>
-          
+          <DialogDescription>
+            Are you sure you want to leave <span className="font-semibold text-indigo-500">${server?.name}</span>
+          </DialogDescription>
         </DialogHeader>
-        <div className="p-6">
-          <Label className="uppercase text-xs font-bold text-zinc-500 dark:text-secondary/70">
-              Server Invite Link 
-          </Label>
-          <div className="flex ityems-ceenter mt-2 gap-x-2">
-              <Input disabled={isLoading} readOnly
-                className="bg-zinc-300/50 border-0 focus-visible:ring-0 text-black focus-visible:ring-offset-0" value={inviteUrl}
-              />
-              <Button disabled={isLoading} size="icon" onClick={onCopy}>
-                {copied? <Check className="w-4 h-4"/>:<Copy className="w-4 h-4" />}
-              </Button>
+        <DialogFooter>
+          <div className="flex items-center justify-between w-full">
+            <Button
+              disabled={isLoading}
+              onClick={onClose}
+              variant="ghost"
+            >
+              Cancel
+            </Button>
+            <Button
+              disabled={isLoading}
+              onClick={onClick}
+              variant="primary"
+            >
+              Confirm
+            </Button>
           </div>
-          <Button 
-          disabled={isLoading}
-          onClick={onNew}
-          variant="link"
-          size="sm"
-          className="text-xs text-zinc-500 mt-4">
-              Generate a new Link 
-              <RefreshCw className="w-4 h-4 ml-2"/>
-          </Button>
-        </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
