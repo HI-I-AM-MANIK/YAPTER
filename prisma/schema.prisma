@@ -86,6 +86,7 @@ model Server{
   
   // Relationship: Every server belongs to exactly one profile
   // Cascade delete: Deleting a profile will delete all its servers
+  
   profile Profile @relation(fields: [profileId], references: [id],onDelete: Cascade)
   members Member[]
   channels Channel[]
