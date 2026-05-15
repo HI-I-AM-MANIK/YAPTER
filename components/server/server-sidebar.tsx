@@ -128,9 +128,30 @@ const server = await db.server.findUnique({
               />
             <Separator className="bg-zinc-200 my-2 rounded-md dark:bg-zinc-700 "></Separator>
             {!!textChannels?.length && (
-              <div className="mb-2">
-                  <ServerSection/>
-              </div>
+              <ServerSection
+                label="Text Channels"
+                channelType={ChannelType.TEXT}
+                role={role}
+                sectionType="channels"
+              />
+            )}
+
+            {!!audioChannels?.length && (
+              <ServerSection
+                label="Voice Channels"
+                channelType={ChannelType.AUDIO}
+                role={role}
+                sectionType="channels"
+              />
+            )}
+
+            {!!videoChannels?.length && (
+              <ServerSection
+                label="Video Channels"
+                channelType={ChannelType.VIDEO}
+                role={role}
+                sectionType="channels"
+              />
             )}
             </ScrollArea>
         </div>
