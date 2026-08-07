@@ -5,17 +5,16 @@ import { getOrCreateConversation } from "@/lib/conversation";
 import { db } from "@/lib/db";
 import ChatHeader from "@/components/chat/chat-header";
 
-
 interface MemberIdProps {
-  params: {
+  params: Promise<{
     serverId: string;
     memberId: string;
-  };
+  }>;
 }
 
 const MemberId = async ({ params }: MemberIdProps) => {
-  
-  
+  const { serverId, memberId } = await params;
+
   const profile = await currentProfile();
 
   if (!profile) {
@@ -24,39 +23,40 @@ const MemberId = async ({ params }: MemberIdProps) => {
 
   const currentMember = await db.member.findFirst({
     where: {
-      serverId: params.serverId,
+      serverId,
       profileId: profile.id,
     },
-    include:{
-        profile: true
-    }
+    include: {
+      profile: true,
+    },
   });
-  if(!currentMember){
+
+  if (!currentMember) {
     return redirect("/");
   }
 
-  const conversation =  await getOrCreateConversation(currentMember.id, params.memberId);
-  if(!conversation){
-    return redirect(`/servers/${params.serverId}`);
+  const conversation = await getOrCreateConversation(
+    currentMember.id,
+    memberId
+  );
+
+  if (!conversation) {
+    return redirect(`/servers/${serverId}`);
   }
 
-  const {memberOne ,memberTwo} = conversation;
-  
-  const otherMember = memberOne.id === currentMember.id ? memberTwo : memberOne;
+  const { memberOne, memberTwo } = conversation;
 
-
+  const otherMember =
+    memberOne.id === currentMember.id ? memberTwo : memberOne;
 
   return (
-    <div className="bg-white dark:bg-[#313338] flex flex-col h-full w-full ">
-        <ChatHeader
-          imageUrl={otherMember.profile.imageUrl || undefined}
-          name={otherMember.profile.name || "Unknown"}
-          serverId={params.serverId}
-          type="conversation"
-          
-        >
-
-        </ChatHeader>
+    <div className="bg-white dark:bg-[#313338] flex flex-col h-full">
+      <ChatHeader
+        imageUrl={otherMember.profile.imageUrl || undefined}
+        name={otherMember.profile.name || "Unknown"}
+        serverId={serverId}
+        type="conversation"
+      />
     </div>
   );
 };
