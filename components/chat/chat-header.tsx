@@ -2,6 +2,7 @@ import { Hash } from "lucide-react";
 
 import { MobileToggle } from "../mobile-toggle";
 import NavigationSidebarMobile from "../navigation/navigation-sidebar-mobile";
+import { UserAvatar } from "../user-avatar";
 
 interface ChatHeaderProps {
   serverId: string;
@@ -9,6 +10,7 @@ interface ChatHeaderProps {
   type: "channel" | "conversation";
   imageUrl?: string;
 }
+ 
 
 const ChatHeader = ({
   serverId,
@@ -26,11 +28,10 @@ const ChatHeader = ({
         <Hash className="h-5 w-5 mr-2 text-zinc-500 dark:text-zinc-400" />
       )}
 
-      {imageUrl && (
-        <img
+      {type === "conversation"&& (
+        <UserAvatar
           src={imageUrl}
-          alt={name}
-          className="h-8 w-8 rounded-full mr-2"
+          className="h-8 w-8 md:h-8 md:w-8 mr-2"
         />
       )}
 
