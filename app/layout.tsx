@@ -7,6 +7,7 @@ import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
 import { extractRouterConfig } from "uploadthing/server";
 import { ourFileRouter } from "./api/uploadthing/core";
 import { ModalProvider } from "@/components/providers/modal-provider";
+import SocketProvider from "@/components/providers/socket-provider";
 
 const openSans = Open_Sans({
   variable: "--font-open-sans",
@@ -26,14 +27,10 @@ export default function RootLayout({
 }) {
   return (
     <ClerkProvider>
-      <html lang="en" suppressHydrationWarning className="h-full">
+      <html lang="en">
         <body
           className={`${openSans.variable} font-sans antialiased h-full bg-white dark:bg-[#0f172a] transition-colors duration-300`}
         >
-          <NextSSRPlugin
-            routerConfig={extractRouterConfig(ourFileRouter)}
-          />
-
           <ThemeProvider
             attribute="class"
             defaultTheme="dark"
@@ -42,7 +39,10 @@ export default function RootLayout({
             storageKey="discord-theme"
           >
             <ModalProvider />
-            {children}
+
+            <SocketProvider>
+              {children}
+            </SocketProvider>
           </ThemeProvider>
         </body>
       </html>
