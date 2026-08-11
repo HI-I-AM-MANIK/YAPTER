@@ -4,6 +4,8 @@ import { RedirectToSignIn } from "@clerk/nextjs";
 import { getOrCreateConversation } from "@/lib/conversation";
 import { db } from "@/lib/db";
 import ChatHeader from "@/components/chat/chat-header";
+import { ChatInput } from "@/components/chat/chat-input";
+import { channel } from "diagnostics_channel";
 
 interface MemberIdProps {
   params: Promise<{
