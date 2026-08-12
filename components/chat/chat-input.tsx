@@ -18,7 +18,7 @@ import { Input } from "@/components/ui/input";
 import { useModal } from "@/hooks/use-modal-store";
 
 interface ChatInputProps {
-    apiUrl?: string;
+    apiUrl: string;
     query?: Record<string, string>;
     name?: string;
     type?:"conversation"|"channel";

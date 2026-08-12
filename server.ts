@@ -1,6 +1,7 @@
 import { createServer } from "http";
 import next from "next";
 import { Server } from "socket.io";
+import { setSocketServer } from "./lib/socket-server";
 
 const dev = process.env.NODE_ENV !== "production";
 const hostname = "localhost";
@@ -25,6 +26,8 @@ app.prepare().then(() => {
       methods: ["GET", "POST"],
     },
   });
+
+  setSocketServer(io);
 
   io.on("connection", (socket) => {
     console.log("User connected:", socket.id);
